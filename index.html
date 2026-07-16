@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en" data-condition="loading">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Aloft — Weather</title>
+  <meta name="description" content="A living weather report. Current conditions, hourly and 7-day forecast for any city, powered by Open-Meteo." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- Living sky: recolored + animated per condition -->
+  <div class="sky" aria-hidden="true">
+    <div class="sky__glow"></div>
+    <div class="sky__body" id="skyBody"></div>
+    <div class="sky__stars"></div>
+  </div>
+
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand__mark" aria-hidden="true"></span>
+      <span class="brand__name">Aloft</span>
+    </div>
+
+    <form class="search" id="searchForm" role="search" autocomplete="off">
+      <label class="search__label" for="cityInput">Search a city</label>
+      <div class="search__field">
+        <svg class="search__icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
+        <input id="cityInput" name="city" type="search" inputmode="search"
+               placeholder="Search a city…" aria-describedby="searchHint" />
+        <button class="search__loc" id="geoBtn" type="button" title="Use my location" aria-label="Use my location">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><line x1="12" y1="2.5" x2="12" y2="5.5"/><line x1="12" y1="18.5" x2="12" y2="21.5"/><line x1="2.5" y1="12" x2="5.5" y2="12"/><line x1="18.5" y1="12" x2="21.5" y2="12"/></svg>
+        </button>
+      </div>
+      <p class="search__hint" id="searchHint">Press Enter to search. Wind and temperature update with each place.</p>
+      <ul class="search__results" id="searchResults" role="listbox" hidden></ul>
+    </form>
+  </header>
+
+  <main id="main" class="stage" aria-live="polite">
+    <!-- Status region (loading / error) -->
+    <div class="status" id="status" hidden>
+      <span class="status__spinner" aria-hidden="true"></span>
+      <p class="status__text" id="statusText">Reading the sky…</p>
+      <button class="status__retry" id="retryBtn" type="button" hidden>Try again</button>
+    </div>
+
+    <!-- Report -->
+    <section class="report" id="report" hidden>
+      <div class="report__head">
+        <p class="report__place" id="place">—</p>
+        <p class="report__time" id="localTime">—</p>
+      </div>
+
+      <div class="hero">
+        <div class="hero__icon" id="heroIcon" aria-hidden="true"></div>
+        <div class="hero__reading">
+          <p class="hero__temp"><span id="temp">–</span><span class="hero__deg">°</span></p>
+          <p class="hero__cond" id="condition">—</p>
+          <p class="hero__feels">Feels like <span id="feels">–</span>°</p>
+        </div>
+      </div>
+
+      <!-- Instrument tiles -->
+      <ul class="tiles" id="tiles">
+        <li class="tile"><span class="tile__k">Wind</span><span class="tile__v" id="wind">–</span><span class="tile__u">km/h</span></li>
+        <li class="tile"><span class="tile__k">Humidity</span><span class="tile__v" id="humidity">–</span><span class="tile__u">%</span></li>
+        <li class="tile"><span class="tile__k">UV index</span><span class="tile__v" id="uv">–</span><span class="tile__u" id="uvLabel">&nbsp;</span></li>
+        <li class="tile"><span class="tile__k">Precip.</span><span class="tile__v" id="precip">–</span><span class="tile__u">%</span></li>
+        <li class="tile"><span class="tile__k">Sunrise</span><span class="tile__v tile__v--sm" id="sunrise">–</span></li>
+        <li class="tile"><span class="tile__k">Sunset</span><span class="tile__v tile__v--sm" id="sunset">–</span></li>
+      </ul>
+
+      <!-- Hourly -->
+      <section class="panel" aria-labelledby="hourlyTitle">
+        <h2 class="panel__title" id="hourlyTitle">Next 24 hours</h2>
+        <ol class="hourly" id="hourly"></ol>
+      </section>
+
+      <!-- Daily -->
+      <section class="panel" aria-labelledby="dailyTitle">
+        <h2 class="panel__title" id="dailyTitle">7-day forecast</h2>
+        <ol class="daily" id="daily"></ol>
+      </section>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>Data by <a href="https://open-meteo.com" target="_blank" rel="noopener">Open-Meteo</a></span>
+    <span class="footer__dot" aria-hidden="true">·</span>
+    <span>No account, no keys, no ads.</span>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
