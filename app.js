@@ -214,7 +214,13 @@ function renderDaily(d) {
 /* ============================================================
    Search (geocoding) + geolocation
    ============================================================ */
-let searchTimer, activeResults = [];
+let searchTimer, activeResults = [], searchSeq = 0;
+
+function showMsg(html) {
+  activeResults = [];
+  el.results.innerHTML = `<li class="res--msg">${html}</li>`;
+  el.results.hidden = false;
+}
 
 async function geocode(q) {
   const res = await fetch(`${GEO}?name=${encodeURIComponent(q)}&count=6&language=en&format=json`);
@@ -229,7 +235,7 @@ async function geocode(q) {
 
 function renderResults(list) {
   activeResults = list;
-  if (!list.length) { el.results.hidden = true; return; }
+  if (!list.length) { showMsg("No matches — try another spelling."); return; }
   el.results.innerHTML = list.map((r, i) =>
     `<li role="option" data-i="${i}"><span class="res__name">${r.name}</span><span class="res__meta">${r.meta}</span></li>`
   ).join("");
@@ -240,9 +246,17 @@ el.input.addEventListener("input", () => {
   const q = el.input.value.trim();
   clearTimeout(searchTimer);
   if (q.length < 2) { el.results.hidden = true; return; }
+  // Immediate feedback so there's never a dead pause after a keystroke.
+  showMsg(`<span class="res__name"><span class="res__spin" aria-hidden="true"></span>Searching…</span>`);
+  const seq = ++searchSeq;
   searchTimer = setTimeout(async () => {
-    try { renderResults(await geocode(q)); } catch { el.results.hidden = true; }
-  }, 250);
+    try {
+      const list = await geocode(q);
+      if (seq === searchSeq) renderResults(list); // ignore stale responses
+    } catch {
+      if (seq === searchSeq) showMsg("Search failed — check your connection.");
+    }
+  }, 160);
 });
 
 el.results.addEventListener("click", (e) => {
