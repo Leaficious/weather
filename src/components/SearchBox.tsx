@@ -20,7 +20,16 @@ const schema = z.object({
 });
 type Form = z.infer<typeof schema>;
 
-export function SearchBox({ size = "lg", autoFocus = false }: { size?: "lg" | "sm"; autoFocus?: boolean }) {
+export function SearchBox({
+  size = "lg",
+  autoFocus = false,
+  compact = false,
+}: {
+  size?: "lg" | "sm";
+  autoFocus?: boolean;
+  /** Header variant: icon-only locate button, no submit button, results open below. */
+  compact?: boolean;
+}) {
   const router = useRouter();
   const { toast } = useToast();
   const listId = useId();
@@ -153,7 +162,7 @@ export function SearchBox({ size = "lg", autoFocus = false }: { size?: "lg" | "s
   const busy = isSubmitting || navigating;
 
   return (
-    <div ref={wrapRef} className="relative w-full">
+    <div ref={wrapRef} className="relative w-full min-w-0">
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="relative">
         <label htmlFor={`${listId}-input`} className="sr-only">
           Search for a city
@@ -178,7 +187,8 @@ export function SearchBox({ size = "lg", autoFocus = false }: { size?: "lg" | "s
             placeholder="Search any place on Earth"
             onKeyDown={onKeyDown}
             onFocus={() => results.length && setOpen(true)}
-            className={`min-w-0 flex-1 bg-transparent outline-none placeholder:opacity-50 ${big ? "text-lg" : "text-sm"}`}
+            size={1}
+            className={`w-full min-w-0 flex-1 bg-transparent outline-none placeholder:opacity-50 ${big ? "text-lg" : "text-sm"}`}
             style={{ color: "var(--sky-text)" }}
             {...register("query")}
           />
@@ -189,13 +199,16 @@ export function SearchBox({ size = "lg", autoFocus = false }: { size?: "lg" | "s
             disabled={locating || busy}
             aria-label="Use my location"
             title="Use my location"
-            className={`btn btn-ghost justify-center ${big ? "h-11 w-11" : "h-8 w-8"}`}
+            className={`btn btn-ghost justify-center ${big ? "h-11 w-11 sm:w-auto sm:px-4" : "h-8 w-8"}`}
           >
             {locating ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> : <LocateFixed className="h-4 w-4" aria-hidden />}
+            {big && <span className="hidden text-sm sm:inline">{locating ? "Locating…" : "My location"}</span>}
           </button>
-          <button type="submit" disabled={busy} className={`btn btn-solar ${big ? "h-11 px-5" : "h-8 px-3 text-sm"}`}>
-            {busy ? "Opening…" : "Look up"}
-          </button>
+          {!compact && (
+            <button type="submit" disabled={busy} className={`btn btn-solar ${big ? "h-11 px-5" : "h-8 px-3 text-sm"}`}>
+              {busy ? "Opening…" : "Look up"}
+            </button>
+          )}
         </div>
         <AnimatePresence>
           {error && (

@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Bookmark, Sun } from "lucide-react";
+import { Sun } from "lucide-react";
 import { UnitsToggle } from "./UnitsToggle";
+import { SearchBox } from "./SearchBox";
 
 const links = [
   { href: "/", label: "Now" },
@@ -15,6 +16,7 @@ const links = [
 export function Header() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
+  const isHome = pathname === "/";
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -31,14 +33,14 @@ export function Header() {
       style={{ color: "var(--sky-text)" }}
     >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
-        <Link href="/" className="flex items-center gap-2 font-semibold tracking-tight" aria-label="Skyfield home">
+        <Link href="/" className="flex shrink-0 items-center gap-2 font-semibold tracking-tight" aria-label="Skyfield home">
           <span className="grid h-8 w-8 place-items-center rounded-full bg-solar text-ink">
             <Sun className="h-4 w-4" aria-hidden />
           </span>
-          <span className="display text-xl">Skyfield</span>
+          <span className="display hidden text-xl min-[400px]:inline">Skyfield</span>
         </Link>
 
-        <nav aria-label="Primary" className="hidden items-center gap-1 sm:flex">
+        <nav aria-label="Primary" className="flex items-center gap-0.5 sm:gap-1">
           {links.map((l) => {
             const active = l.href === "/" ? pathname === "/" : pathname.startsWith(l.href);
             return (
@@ -46,7 +48,7 @@ export function Header() {
                 key={l.href}
                 href={l.href}
                 aria-current={active ? "page" : undefined}
-                className={`relative rounded-full px-3 py-1.5 text-sm font-medium transition hover:bg-[var(--sky-surface)] ${
+                className={`relative rounded-full px-2.5 py-1.5 text-sm font-medium transition hover:bg-[var(--sky-surface)] sm:px-3 ${
                   active ? "after:absolute after:inset-x-3 after:-bottom-0.5 after:h-0.5 after:rounded-full after:bg-solar" : "opacity-80 hover:opacity-100"
                 }`}
               >
@@ -57,13 +59,11 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-2">
-          <Link
-            href="/saved"
-            className="btn btn-ghost h-9 w-9 justify-center sm:hidden"
-            aria-label="Saved places"
-          >
-            <Bookmark className="h-4 w-4" aria-hidden />
-          </Link>
+          {!isHome && (
+            <div className="hidden w-72 md:block lg:w-80">
+              <SearchBox size="sm" compact />
+            </div>
+          )}
           <UnitsToggle />
         </div>
       </div>

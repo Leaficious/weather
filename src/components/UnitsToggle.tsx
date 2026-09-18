@@ -8,8 +8,8 @@ export function UnitsToggle() {
   const { units, setUnits } = useUnits();
   const { toast } = useToast();
   const options = [
-    { id: "metric", label: "°C" },
-    { id: "imperial", label: "°F" },
+    { id: "metric", label: "°C", name: "Celsius" },
+    { id: "imperial", label: "°F", name: "Fahrenheit" },
   ] as const;
 
   return (
@@ -26,10 +26,11 @@ export function UnitsToggle() {
             type="button"
             role="radio"
             aria-checked={active}
+            aria-label={o.name}
             onClick={() => {
               if (active) return;
               setUnits(o.id);
-              toast(`Showing temperatures in ${o.label === "°C" ? "Celsius" : "Fahrenheit"}`);
+              toast(`Showing temperatures in ${o.name}`);
             }}
             className="relative z-10 grid h-7 w-10 place-items-center rounded-full transition-colors"
             style={{ color: active ? "var(--ink)" : "var(--sky-text)" }}

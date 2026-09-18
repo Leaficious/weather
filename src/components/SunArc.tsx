@@ -2,10 +2,18 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import { Sunrise, Sunset } from "lucide-react";
-import { timeLabel } from "@/lib/weather";
+import { dayFraction, timeLabel } from "@/lib/weather";
+
+function untilSunrise(now: string, sunrise: string): string {
+  let mins = Math.round((dayFraction(sunrise) - dayFraction(now)) * 1440);
+  if (mins < 0) mins += 1440; // sunrise is tomorrow
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  return h ? `${h}h ${m}m` : `${m}m`;
+}
 
 /** Sun's path today: rise → set, with the current position marked. */
-export function SunArc({ sunrise, sunset, progress }: { sunrise: string; sunset: string; progress: number }) {
+export function SunArc({ sunrise, sunset, progress, now }: { sunrise: string; sunset: string; progress: number; now: string }) {
   const reduce = useReducedMotion();
   const p = Math.max(0, Math.min(1, progress));
   const below = progress < 0 || progress > 1;
@@ -54,7 +62,7 @@ export function SunArc({ sunrise, sunset, progress }: { sunrise: string; sunset:
           <Sunrise className="h-4 w-4 text-solar" aria-hidden /> <span className="num">{timeLabel(sunrise)}</span>
         </span>
         <span className="text-xs" style={{ color: "var(--sky-text-muted)" }}>
-          {below ? "Sun is below the horizon" : `${Math.round(p * 100)}% through the day`}
+          {below ? `Sunrise in ${untilSunrise(now, sunrise)}` : `${Math.round(p * 100)}% of daylight gone`}
         </span>
         <span className="flex items-center gap-1.5">
           <span className="num">{timeLabel(sunset)}</span> <Sunset className="h-4 w-4 text-solar" aria-hidden />

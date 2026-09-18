@@ -2,8 +2,8 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { motion, useReducedMotion } from "framer-motion";
-import { ArrowLeft, Bookmark, BookmarkCheck, Check, Droplets, Eye, Gauge, Share2, Sun, Wind } from "lucide-react";
+import { motion } from "framer-motion";
+import { ArrowLeft, Bookmark, BookmarkCheck, Check, Droplets, Eye, Gauge, Navigation, Share2, Sun, Wind } from "lucide-react";
 import { computeSky } from "@/lib/sky";
 import {
   compass,
@@ -29,7 +29,6 @@ export function ForecastView({ forecast }: { forecast: Forecast }) {
   const { units } = useUnits();
   const { isSaved, toggleSave, hydrated } = useFavorites();
   const { toast } = useToast();
-  const reduce = useReducedMotion();
   const [copied, setCopied] = useState(false);
   const { current, place } = forecast;
 
@@ -70,11 +69,24 @@ export function ForecastView({ forecast }: { forecast: Forecast }) {
     toast(nowSaved ? `Saved ${place.name}` : `Removed ${place.name} from saved places`, nowSaved ? "success" : "neutral");
   }
 
-  const stagger = (i: number) =>
-    reduce ? {} : { initial: { opacity: 0, y: 18 }, animate: { opacity: 1, y: 0 }, transition: { delay: 0.1 + i * 0.08, duration: 0.7, ease: [0.16, 1, 0.3, 1] as const } };
+  /** CSS entrance (not JS): content is visible even before hydration or in throttled tabs. */
+  const rise = (i: number) => ({ animationDelay: `${0.1 + i * 0.08}s` });
 
   const details = [
-    { icon: Wind, label: "Wind", value: fmtSpeed(current.windSpeed, units), sub: `${compass(current.windDir)} · gusts ${fmtSpeed(current.windGust, units)}` },
+    {
+      icon: Wind,
+      label: "Wind",
+      value: fmtSpeed(current.windSpeed, units),
+      sub: `from ${compass(current.windDir)} · gusts ${fmtSpeed(current.windGust, units)}`,
+      extra: (
+        <Navigation
+          className="h-4 w-4 text-solar"
+          style={{ transform: `rotate(${current.windDir + 135}deg)` }}
+          aria-label={`Wind blowing toward ${compass((current.windDir + 180) % 360)}`}
+          role="img"
+        />
+      ),
+    },
     { icon: Droplets, label: "Humidity", value: `${current.humidity}%`, sub: `Feels like ${fmtTemp(current.feelsLike, units)}` },
     { icon: Sun, label: "UV index", value: current.uv.toFixed(1), sub: uvLabel(current.uv) },
     { icon: Gauge, label: "Pressure", value: `${Math.round(current.pressure)} hPa`, sub: pressureLabel(current.pressure) },
@@ -89,8 +101,8 @@ export function ForecastView({ forecast }: { forecast: Forecast }) {
       <section className="sky-bg relative overflow-hidden pt-24" style={{ color: "var(--sky-text)" }}>
         <SkyCanvas sky={sky} />
         <div className="isobars pointer-events-none absolute inset-0 opacity-[0.12] [mask-image:linear-gradient(to_top,black,transparent_70%)]" aria-hidden />
-        <div className="relative mx-auto flex min-h-[78svh] max-w-7xl flex-col justify-between px-4 pb-8 sm:px-6">
-          <motion.div {...stagger(0)} className="flex flex-wrap items-center justify-between gap-3">
+        <div className="relative mx-auto flex max-w-7xl flex-col px-4 pb-10 sm:px-6 lg:min-h-[72svh]">
+          <div className="rise flex flex-wrap items-center justify-between gap-3" style={rise(0)}>
             <Link href="/" className="btn btn-ghost h-10 px-4 text-sm">
               <ArrowLeft className="h-4 w-4" aria-hidden /> Search
             </Link>
@@ -109,34 +121,37 @@ export function ForecastView({ forecast }: { forecast: Forecast }) {
                 {saved ? "Saved" : "Save"}
               </button>
             </div>
-          </motion.div>
+          </div>
 
-          <div className="grid gap-8 py-12 lg:grid-cols-[1fr_auto] lg:items-end">
-            <div>
-              <motion.p {...stagger(1)} className="eyebrow" style={{ color: "var(--sky-text-muted)" }}>
-                {[place.admin, place.country].filter(Boolean).join(" · ") || "Coordinates"} · {timeLabel(current.time)} local
-              </motion.p>
-              <motion.h1 {...stagger(2)} className="display mt-3 text-[clamp(2.75rem,8vw,6.5rem)]">
+          <div className="grid gap-8 pt-10 sm:pt-14 lg:grid-cols-[1fr_auto] lg:items-end lg:gap-12 lg:pt-16">
+            <div className="min-w-0">
+              <p className="rise eyebrow" style={{ color: "var(--sky-text-muted)", ...rise(1) }}>
+                {[place.admin, place.country].filter(Boolean).join(" · ") || "Coordinates"}
+              </p>
+              <h1 className="rise display mt-3 text-[clamp(3rem,9vw,8rem)]" style={rise(2)}>
                 {place.name}
-              </motion.h1>
-              <motion.div {...stagger(3)} className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2">
-                <p className="display num text-[clamp(5rem,16vw,11rem)] leading-[0.85]">{fmtTemp(current.temp, units)}</p>
-                <div className="pb-2">
-                  <p className="flex items-center gap-2 text-xl font-medium">
+              </h1>
+              <div className="rise mt-6 flex flex-wrap items-end gap-x-6 gap-y-3" style={rise(3)}>
+                <p className="display num text-[clamp(6rem,18vw,13rem)] leading-[0.82]">{fmtTemp(current.temp, units)}</p>
+                <div className="pb-1">
+                  <p className="flex items-center gap-2 text-xl font-medium sm:text-2xl">
                     <WeatherIcon code={current.code} isDay={current.isDay} className="h-7 w-7" strokeWidth={1.5} />
                     {cond.label}
                   </p>
-                  <p className="mt-1 text-base" style={{ color: "var(--sky-text-muted)" }}>
-                    Feels like {fmtTemp(current.feelsLike, units)} · H {fmtTemp(forecast.daily[0]?.max ?? current.temp, units)} L{" "}
+                  <p className="mt-1.5 text-base" style={{ color: "var(--sky-text-muted)" }}>
+                    Feels like {fmtTemp(current.feelsLike, units)} · High {fmtTemp(forecast.daily[0]?.max ?? current.temp, units)} · Low{" "}
                     {fmtTemp(forecast.daily[0]?.min ?? current.temp, units)}
                   </p>
                 </div>
-              </motion.div>
+              </div>
+              <p className="rise num mt-6 text-sm" style={{ color: "var(--sky-text-muted)", ...rise(4) }}>
+                {longDate(current.time)} · reading from {timeLabel(current.time)} local time
+              </p>
             </div>
 
-            <motion.div {...stagger(4)} className="surface w-full max-w-sm rounded-3xl p-5 lg:w-80">
-              <SunArc sunrise={forecast.sunrise} sunset={forecast.sunset} progress={sky.sunProgress} />
-            </motion.div>
+            <div className="rise surface w-full max-w-sm rounded-3xl p-5 lg:w-80" style={rise(5)}>
+              <SunArc sunrise={forecast.sunrise} sunset={forecast.sunset} progress={sky.sunProgress} now={current.time} />
+            </div>
           </div>
         </div>
       </section>
@@ -201,7 +216,10 @@ export function ForecastView({ forecast }: { forecast: Forecast }) {
                 <Reveal as="li" index={i} key={d.label} className="group rounded-3xl border border-line bg-paper/70 p-5 backdrop-blur transition-colors hover:border-ink/40">
                   <div className="flex items-center justify-between">
                     <p className="eyebrow text-ink/55">{d.label}</p>
-                    <d.icon className="h-4 w-4 text-ink/40 transition-colors group-hover:text-solar" aria-hidden />
+                    <span className="flex items-center gap-2">
+                      {"extra" in d ? d.extra : null}
+                      <d.icon className="h-4 w-4 text-ink/40 transition-colors group-hover:text-solar" aria-hidden />
+                    </span>
                   </div>
                   <p className="display num mt-4 text-3xl">{d.value}</p>
                   <p className="mt-1 text-xs text-ink/60">{d.sub}</p>
@@ -250,6 +268,10 @@ function tempRange(days: Forecast["daily"]): [number, number] {
     hi = Math.max(hi, d.max);
   }
   return [lo, hi];
+}
+
+function longDate(iso: string): string {
+  return new Date(`${iso.slice(0, 10)}T12:00:00`).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
 }
 
 function uvLabel(uv: number): string {

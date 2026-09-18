@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   title: { default: "Skyfield — the sky, as it is right now", template: "%s · Skyfield" },
   description:
     "A weather site that paints the actual sky above any place on Earth. Live conditions, hourly curve, seven-day outlook.",
-  metadataBase: new URL("https://skyfield.example.com"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
   openGraph: { title: "Skyfield", description: "The sky, as it is right now.", type: "website" },
 };
 

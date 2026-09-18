@@ -44,6 +44,38 @@ export function SkyCanvas({ sky, className = "" }: { sky: SkyState; className?: 
 
     const stars: Particle[] = [];
     const clouds: Particle[] = [];
+    // Cloud sprites are expensive (many radial gradients); render once per size/family and blit.
+    const spriteCache = new Map<string, HTMLCanvasElement>();
+    function cloudSprite(size: number, light: string, dark: string, seed: number): HTMLCanvasElement {
+      const key = `${Math.round(size)}|${light}|${dark}|${seed.toFixed(2)}`;
+      const hit = spriteCache.get(key);
+      if (hit) return hit;
+      const pad = size * 0.4;
+      const cw = Math.ceil(size * 1.4 + pad * 2);
+      const ch = Math.ceil(size * 0.9 + pad * 2);
+      const off = document.createElement("canvas");
+      off.width = cw;
+      off.height = ch;
+      const oc = off.getContext("2d");
+      if (oc) {
+        const cx = cw / 2;
+        const cy = ch / 2;
+        for (let k = 0; k < 4; k++) {
+          const ox = (k - 1.5) * size * 0.28;
+          const oy = Math.sin(seed + k) * size * 0.06;
+          const r = size * (0.28 + (k % 2) * 0.08);
+          const g = oc.createRadialGradient(cx + ox, cy + oy, r * 0.1, cx + ox, cy + oy, r);
+          g.addColorStop(0, hexA(light, 0.9));
+          g.addColorStop(0.55, hexA(dark, 0.45));
+          g.addColorStop(1, hexA(dark, 0));
+          oc.fillStyle = g;
+          oc.fillRect(cx + ox - r, cy + oy - r, r * 2, r * 2);
+        }
+      }
+      if (spriteCache.size > 24) spriteCache.clear();
+      spriteCache.set(key, off);
+      return off;
+    }
     const drops: Particle[] = [];
     const flakes: Particle[] = [];
 
@@ -79,7 +111,9 @@ export function SkyCanvas({ sky, className = "" }: { sky: SkyState; className?: 
 
     function resize() {
       const rect = canvas!.getBoundingClientRect();
-      dpr = Math.min(2, window.devicePixelRatio || 1);
+      // 1.5x is visually indistinguishable for soft gradients and halves fill cost on 3x phones.
+      dpr = Math.min(1.5, window.devicePixelRatio || 1);
+      spriteCache.clear();
       w = Math.max(1, Math.floor(rect.width));
       h = Math.max(1, Math.floor(rect.height));
       canvas!.width = w * dpr;
@@ -173,18 +207,10 @@ export function SkyCanvas({ sky, className = "" }: { sky: SkyState; className?: 
         if (!reduce) c.x += c.vx * dt;
         if (c.x - c.size > w) c.x = -c.size;
         const y = c.y + (reduce ? 0 : Math.sin(t * 0.3 + c.seed) * 6);
-        // A cloud = several overlapping soft blobs.
-        for (let k = 0; k < 4; k++) {
-          const ox = (k - 1.5) * c.size * 0.28;
-          const oy = Math.sin(c.seed + k) * c.size * 0.06;
-          const r = c.size * (0.28 + (k % 2) * 0.08);
-          const g = ctx!.createRadialGradient(c.x + ox, y + oy, r * 0.1, c.x + ox, y + oy, r);
-          g.addColorStop(0, hexA(light, 0.9 * c.alpha));
-          g.addColorStop(0.55, hexA(dark, 0.45 * c.alpha));
-          g.addColorStop(1, hexA(dark, 0));
-          ctx!.fillStyle = g;
-          ctx!.fillRect(c.x + ox - r, y + oy - r, r * 2, r * 2);
-        }
+        const sprite = cloudSprite(c.size, light, dark, c.seed);
+        ctx!.globalAlpha = c.alpha;
+        ctx!.drawImage(sprite, c.x - sprite.width / 2, y - sprite.height / 2);
+        ctx!.globalAlpha = 1;
       }
     }
 

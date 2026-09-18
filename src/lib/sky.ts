@@ -143,7 +143,7 @@ export function computeSky({ code, isDay, localTime, sunrise, sunset }: Args): S
       mid,
       horizon,
       text: dark ? "#F4F6FA" : "#0B1220",
-      textMuted: dark ? "rgba(244,246,250,0.68)" : "rgba(11,18,32,0.62)",
+      textMuted: dark ? "rgba(244,246,250,0.72)" : "rgba(11,18,32,0.74)",
       glow: base.glow,
       surface: dark ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.42)",
       surfaceBorder: dark ? "rgba(255,255,255,0.16)" : "rgba(11,18,32,0.10)",

@@ -43,7 +43,7 @@ export default async function HomePage() {
             <div>
               <p className="eyebrow text-ink/50">Around the world</p>
               <h2 id="world-heading" className="display mt-2 text-4xl sm:text-6xl">
-                Six skies, one minute.
+                Six skies, right now.
               </h2>
             </div>
             <p className="max-w-sm text-sm text-ink/65">

@@ -20,11 +20,12 @@ export function HomeHero({ forecasts }: { forecasts: Forecast[] }) {
   const [paused, setPaused] = useState(false);
   const f = forecasts[i];
 
+  const autoRotate = forecasts.length > 1 && !paused && !reduce;
   useEffect(() => {
-    if (forecasts.length < 2 || paused) return;
+    if (!autoRotate) return;
     const id = window.setInterval(() => setI((x) => (x + 1) % forecasts.length), ROTATE_MS);
     return () => window.clearInterval(id);
-  }, [forecasts.length, paused]);
+  }, [autoRotate, forecasts.length]);
 
   const sky = useMemo(
     () =>
@@ -66,46 +67,25 @@ export function HomeHero({ forecasts }: { forecasts: Forecast[] }) {
 
       <div className="relative mx-auto w-full max-w-7xl px-4 pb-10 sm:px-6 sm:pb-16">
         <div className="grid gap-10 lg:grid-cols-[1.4fr_1fr] lg:items-end">
-          <div>
-            <motion.p
-              initial={reduce ? false : { opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1, duration: 0.6 }}
-              className="eyebrow"
-              style={{ color: "var(--sky-text-muted)" }}
-            >
-              Live · painted from measurements, not stock photos
-            </motion.p>
+          <div className="min-w-0">
+            <p className="eyebrow rise" style={{ color: "var(--sky-text-muted)", animationDelay: "0.1s" }}>
+              Live · painted from measurements
+            </p>
             <h1 className="display mt-4 text-[clamp(3rem,10vw,8.5rem)]">
-              <motion.span
-                initial={reduce ? false : { opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                className="block"
-              >
+              <span className="rise block" style={{ animationDelay: "0.2s" }}>
                 The sky,
-              </motion.span>
-              <motion.span
-                initial={reduce ? false : { opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.32, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                className="block"
-              >
+              </span>
+              <span className="rise block" style={{ animationDelay: "0.32s" }}>
                 as it is right now.
-              </motion.span>
+              </span>
             </h1>
-            <motion.div
-              initial={reduce ? false : { opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-              className="mt-8 max-w-xl"
-            >
+            <div className="rise mt-8 max-w-xl" style={{ animationDelay: "0.5s" }}>
               <SearchBox size="lg" />
-            </motion.div>
+            </div>
           </div>
 
           {f && cond && (
-            <div className="relative min-h-[9.5rem] lg:justify-self-end lg:text-right" aria-live="polite">
+            <div className="relative min-h-[9.5rem] min-w-0 lg:justify-self-end lg:text-right">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={`${f.place.name}-${i}`}
@@ -128,20 +108,26 @@ export function HomeHero({ forecasts }: { forecasts: Forecast[] }) {
                 </motion.div>
               </AnimatePresence>
 
-              <div className="mt-5 flex gap-1.5 lg:justify-end" role="tablist" aria-label="Featured skies">
+              <div className="mt-5 flex gap-1.5 lg:justify-end" role="group" aria-label="Featured skies">
                 {forecasts.map((x, k) => (
                   <button
                     key={x.place.name}
                     type="button"
-                    role="tab"
-                    aria-selected={k === i}
+                    aria-pressed={k === i}
                     aria-label={`Show ${x.place.name}`}
                     onClick={() => setI(k)}
                     className="group relative h-6 w-8 outline-offset-2"
                   >
-                    <span
-                      className={`block h-1 rounded-full transition-all duration-300 ${k === i ? "bg-solar" : "bg-current opacity-30 group-hover:opacity-60"}`}
-                    />
+                    <span className="block h-1 overflow-hidden rounded-full bg-current opacity-30 group-hover:opacity-60" />
+                    {k === i && (
+                      <motion.span
+                        key={`${k}-${autoRotate}`}
+                        className="absolute inset-x-0 top-0 h-1 origin-left rounded-full bg-solar"
+                        initial={{ scaleX: autoRotate ? 0 : 1 }}
+                        animate={{ scaleX: 1 }}
+                        transition={{ duration: autoRotate ? ROTATE_MS / 1000 : 0.3, ease: "linear" }}
+                      />
+                    )}
                   </button>
                 ))}
               </div>

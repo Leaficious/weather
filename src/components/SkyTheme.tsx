@@ -8,13 +8,18 @@ const DEFAULTS: Record<string, string> = {
   "--sky-mid": "#e8edf2",
   "--sky-horizon": "#eef1f4",
   "--sky-text": "#0b1220",
-  "--sky-text-muted": "rgba(11,18,32,0.62)",
+  "--sky-text-muted": "rgba(11,18,32,0.74)",
   "--sky-surface": "rgba(255,255,255,0.55)",
   "--sky-surface-border": "rgba(11,18,32,0.10)",
   "--sky-glow": "#fff1c9",
 };
 
-/** Pushes the computed sky palette into CSS variables on <html>, resets on unmount. */
+/**
+ * Pushes the computed sky palette into CSS variables on <html>.
+ * Deliberately does NOT reset on unmount: the previous sky stays up during route
+ * transitions and loading states, so pages never flash to grey. Pages without a sky
+ * render <SkyTheme sky={null} /> to switch to the neutral palette.
+ */
 export function SkyTheme({ sky }: { sky: SkyState | null }) {
   useEffect(() => {
     const root = document.documentElement;
@@ -33,9 +38,6 @@ export function SkyTheme({ sky }: { sky: SkyState | null }) {
     for (const [k, v] of Object.entries(vars)) root.style.setProperty(k, v);
     const meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.setAttribute("content", vars["--sky-top"]);
-    return () => {
-      for (const [k, v] of Object.entries(DEFAULTS)) root.style.setProperty(k, v);
-    };
   }, [sky]);
   return null;
 }

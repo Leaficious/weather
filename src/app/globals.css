@@ -15,7 +15,7 @@
   --sky-mid: #6fb2f2;
   --sky-horizon: #cfe7fa;
   --sky-text: #0b1220;
-  --sky-text-muted: rgba(11, 18, 32, 0.62);
+  --sky-text-muted: rgba(11, 18, 32, 0.74);
   --sky-surface: rgba(255, 255, 255, 0.42);
   --sky-surface-border: rgba(11, 18, 32, 0.1);
   --sky-glow: #fff1c9;
@@ -107,7 +107,7 @@ body {
 
 .eyebrow {
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
@@ -187,6 +187,21 @@ body {
   animation: sun-pulse 5s ease-in-out infinite;
   transform-origin: center;
   transform-box: fill-box;
+}
+
+/* Entrance for hero content. CSS, not JS: shows even before hydration or in throttled tabs. */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.rise {
+  animation: rise 0.8s var(--ease-out-expo) both;
 }
 
 .no-scrollbar::-webkit-scrollbar {

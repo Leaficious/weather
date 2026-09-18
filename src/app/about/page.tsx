@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { SkyTheme } from "@/components/SkyTheme";
 import { ArrowRight } from "lucide-react";
 import { Reveal } from "@/components/Reveal";
 
@@ -17,6 +18,7 @@ const rows = [
 export default function AboutPage() {
   return (
     <div className="bg-paper pt-24 text-ink">
+      <SkyTheme sky={null} />
       <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 sm:py-20">
         <Reveal>
           <p className="eyebrow text-ink/50">About</p>

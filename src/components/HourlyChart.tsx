@@ -49,8 +49,11 @@ export function HourlyChart({ hours, units }: { hours: HourPoint[]; units: Units
   const active = hover ?? 0;
 
   return (
-    <div className="no-scrollbar -mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
-      <div className="min-w-[760px] rounded-3xl border border-line bg-paper-2/60 p-3 sm:p-5">
+    <div className="relative">
+      <p className="mb-3 text-xs text-ink/55 sm:hidden">Swipe sideways to see the whole day →</p>
+      <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-10 bg-gradient-to-l from-paper to-transparent lg:hidden" aria-hidden />
+      <div className="no-scrollbar -mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+      <div className="min-w-[760px] rounded-3xl border border-line bg-paper-2/60 p-3 focus-within:ring-2 focus-within:ring-solar sm:p-5">
         <svg
           viewBox={`0 0 ${W} ${H}`}
           className="block h-auto w-full"
@@ -165,6 +168,7 @@ export function HourlyChart({ hours, units }: { hours: HourPoint[]; units: Units
             ) : null,
           )}
         </div>
+      </div>
       </div>
     </div>
   );
