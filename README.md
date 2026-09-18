@@ -2,6 +2,8 @@
 
 The sky, as it is right now. A weather site that paints the actual sky above any place from live measurements (Open-Meteo), with an hourly curve, seven-day outlook and instrument readings.
 
+Live: https://weather-beta-opal.vercel.app
+
 ## Run
 
 ```bash
