@@ -9,7 +9,6 @@ import { placeKey } from "@/lib/weather";
 interface UnitsCtx {
   units: Units;
   setUnits: (u: Units) => void;
-  toggle: () => void;
 }
 const UnitsContext = createContext<UnitsCtx | null>(null);
 
@@ -48,7 +47,6 @@ export function Providers({ children }: { children: ReactNode }) {
   const idRef = useRef(0);
 
   const setUnits = useCallback((u: Units) => unitsStore.write(u), []);
-  const toggle = useCallback(() => setUnits(units === "metric" ? "imperial" : "metric"), [units, setUnits]);
 
   const isSaved = useCallback((p: Place) => favorites.some((f) => placeKey(f) === placeKey(p)), [favorites]);
   const toggleSave = useCallback(
@@ -77,7 +75,7 @@ export function Providers({ children }: { children: ReactNode }) {
     [dismiss],
   );
 
-  const unitsValue = useMemo(() => ({ units, setUnits, toggle }), [units, setUnits, toggle]);
+  const unitsValue = useMemo(() => ({ units, setUnits }), [units, setUnits]);
   const favValue = useMemo(
     () => ({ favorites, isSaved, toggleSave, remove, hydrated }),
     [favorites, isSaved, toggleSave, remove, hydrated],

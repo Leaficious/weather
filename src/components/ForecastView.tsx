@@ -12,7 +12,6 @@ import {
   fmtDistance,
   fmtSpeed,
   fmtTemp,
-  hourLabel,
   timeLabel,
   toUnitTemp,
   type Forecast,
@@ -66,7 +65,7 @@ export function ForecastView({ forecast }: { forecast: Forecast }) {
 
   function save() {
     const nowSaved = toggleSave(place);
-    toast(nowSaved ? `Saved ${place.name}` : `Removed ${place.name} from saved places`, nowSaved ? "success" : "neutral");
+    toast(nowSaved ? `Saved ${place.name}` : `Removed ${place.name}`, nowSaved ? "success" : "neutral");
   }
 
   /** CSS entrance (not JS): content is visible even before hydration or in throttled tabs. */
@@ -87,7 +86,7 @@ export function ForecastView({ forecast }: { forecast: Forecast }) {
         />
       ),
     },
-    { icon: Droplets, label: "Humidity", value: `${current.humidity}%`, sub: `Feels like ${fmtTemp(current.feelsLike, units)}` },
+    { icon: Droplets, label: "Humidity", value: `${current.humidity}%`, sub: humidityLabel(current.humidity) },
     { icon: Sun, label: "UV index", value: current.uv.toFixed(1), sub: uvLabel(current.uv) },
     { icon: Gauge, label: "Pressure", value: `${Math.round(current.pressure)} hPa`, sub: pressureLabel(current.pressure) },
     { icon: Eye, label: "Visibility", value: fmtDistance(current.visibility, units), sub: `${current.cloudCover}% cloud cover` },
@@ -145,7 +144,7 @@ export function ForecastView({ forecast }: { forecast: Forecast }) {
                 </div>
               </div>
               <p className="rise num mt-6 text-sm" style={{ color: "var(--sky-text-muted)", ...rise(4) }}>
-                {longDate(current.time)} · reading from {timeLabel(current.time)} local time
+                {longDate(current.time)} · {timeLabel(current.time)} local
               </p>
             </div>
 
@@ -166,7 +165,7 @@ export function ForecastView({ forecast }: { forecast: Forecast }) {
                 The curve.
               </h2>
             </div>
-            <p className="hidden max-w-xs text-sm text-ink/60 sm:block">Temperature line, rain chance as bars beneath. Scroll sideways on small screens.</p>
+            <p className="hidden max-w-xs text-sm text-ink/60 sm:block">Temperature as the line, chance of rain as the bars beneath.</p>
           </Reveal>
           <Reveal index={1} className="mt-8">
             <HourlyChart hours={forecast.hourly} units={units} />
@@ -284,6 +283,11 @@ function uvLabel(uv: number): string {
 function pressureLabel(p: number): string {
   if (p >= 1022) return "High — settled";
   if (p <= 1005) return "Low — unsettled";
-  return "Normal";
+  return "Normal — steady";
 }
-export { hourLabel };
+function humidityLabel(h: number): string {
+  if (h < 30) return "Dry";
+  if (h < 60) return "Comfortable";
+  if (h < 80) return "Humid";
+  return "Muggy";
+}

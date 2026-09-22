@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { SkyTheme } from "@/components/SkyTheme";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { Reveal } from "@/components/Reveal";
 
 export const metadata: Metadata = { title: "About & data", description: "Where Skyfield's numbers and colours come from." };
@@ -21,8 +21,7 @@ export default function AboutPage() {
       <SkyTheme sky={null} />
       <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 sm:py-20">
         <Reveal>
-          <p className="eyebrow text-ink/50">About</p>
-          <h1 className="display mt-2 text-4xl sm:text-6xl">Weather, painted honestly.</h1>
+          <h1 className="display text-4xl sm:text-6xl">Weather, painted honestly.</h1>
           <p className="mt-6 max-w-2xl text-lg leading-relaxed text-ink/75">
             Most weather apps show a photo of a sky that isn&apos;t yours. Skyfield draws the one above you, from the measurements themselves.
             The colour, the drifting clouds, the position of the sun on its arc — all of it is derived, none of it is decoration.
@@ -43,7 +42,7 @@ export default function AboutPage() {
             Look up a place <ArrowRight className="h-4 w-4" aria-hidden />
           </Link>
           <a href="https://open-meteo.com/en/docs" target="_blank" rel="noreferrer" className="btn btn-ink h-12 px-6">
-            Open-Meteo docs ↗
+            Open-Meteo docs <ArrowUpRight className="h-4 w-4" aria-hidden />
           </a>
         </Reveal>
       </div>

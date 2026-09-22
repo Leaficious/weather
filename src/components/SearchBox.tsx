@@ -22,11 +22,9 @@ type Form = z.infer<typeof schema>;
 
 export function SearchBox({
   size = "lg",
-  autoFocus = false,
   compact = false,
 }: {
   size?: "lg" | "sm";
-  autoFocus?: boolean;
   /** Header variant: icon-only locate button, no submit button, results open below. */
   compact?: boolean;
 }) {
@@ -165,7 +163,7 @@ export function SearchBox({
     <div ref={wrapRef} className="relative w-full min-w-0">
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="relative">
         <label htmlFor={`${listId}-input`} className="sr-only">
-          Search for a city
+          Search for a place
         </label>
         <div
           className={`surface flex items-center gap-2 rounded-full pr-2 transition-shadow focus-within:shadow-[0_0_0_3px_var(--solar)] ${
@@ -177,14 +175,13 @@ export function SearchBox({
             id={`${listId}-input`}
             type="text"
             autoComplete="off"
-            autoFocus={autoFocus}
             role="combobox"
             aria-expanded={open && results.length > 0}
             aria-controls={`${listId}-list`}
             aria-activedescendant={active >= 0 ? `${listId}-opt-${active}` : undefined}
             aria-invalid={!!error}
             aria-describedby={error ? `${listId}-err` : undefined}
-            placeholder="Search any place on Earth"
+            placeholder="Find a place"
             onKeyDown={onKeyDown}
             onFocus={() => results.length && setOpen(true)}
             size={1}
@@ -192,7 +189,9 @@ export function SearchBox({
             style={{ color: "var(--sky-text)" }}
             {...register("query")}
           />
-          {(searching || busy) && <Loader2 className="h-4 w-4 animate-spin opacity-70" aria-label="Searching" />}
+          {(searching || busy) && (
+            <Loader2 className="h-4 w-4 animate-spin opacity-70" role="img" aria-label={busy ? "Opening forecast" : "Searching"} />
+          )}
           <button
             type="button"
             onClick={locate}

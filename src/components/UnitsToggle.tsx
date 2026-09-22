@@ -2,11 +2,9 @@
 
 import { motion } from "framer-motion";
 import { useUnits } from "./Providers";
-import { useToast } from "./Providers";
 
 export function UnitsToggle() {
   const { units, setUnits } = useUnits();
-  const { toast } = useToast();
   const options = [
     { id: "metric", label: "°C", name: "Celsius" },
     { id: "imperial", label: "°F", name: "Fahrenheit" },
@@ -27,11 +25,7 @@ export function UnitsToggle() {
             role="radio"
             aria-checked={active}
             aria-label={o.name}
-            onClick={() => {
-              if (active) return;
-              setUnits(o.id);
-              toast(`Showing temperatures in ${o.name}`);
-            }}
+            onClick={() => setUnits(o.id)}
             className="relative z-10 grid h-7 w-10 place-items-center rounded-full transition-colors"
             style={{ color: active ? "var(--ink)" : "var(--sky-text)" }}
           >

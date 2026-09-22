@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ArrowUpRight } from "lucide-react";
 
 export function Footer() {
   return (
@@ -7,9 +8,7 @@ export function Footer() {
       <div className="relative mx-auto flex max-w-7xl flex-col gap-8 px-4 py-12 sm:px-6 md:flex-row md:items-end md:justify-between">
         <div>
           <p className="display text-3xl">Skyfield</p>
-          <p className="mt-2 max-w-sm text-sm text-ink/70">
-            The sky, as it is right now. Every colour on this site is derived from real measurements, not a mood board.
-          </p>
+          <p className="mt-2 max-w-sm text-sm text-ink/70">The sky, as it is right now.</p>
         </div>
         <div className="grid grid-cols-2 gap-x-12 gap-y-2 text-sm sm:grid-cols-3">
           <Link href="/" className="hover:underline underline-offset-4">Now</Link>
@@ -19,9 +18,9 @@ export function Footer() {
             href="https://open-meteo.com/"
             target="_blank"
             rel="noreferrer"
-            className="hover:underline underline-offset-4"
+            className="inline-flex items-center gap-1 hover:underline underline-offset-4"
           >
-            Open-Meteo ↗
+            Open-Meteo <ArrowUpRight className="h-3.5 w-3.5" aria-hidden />
           </a>
         </div>
       </div>
