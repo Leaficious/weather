@@ -7,7 +7,7 @@ import { WeatherIcon } from "./WeatherIcon";
 
 const W = 1200;
 const H = 300;
-const PAD = { l: 8, r: 8, t: 44, b: 64 };
+const PAD = { l: 28, r: 28, t: 44, b: 64 };
 
 export function HourlyChart({ hours, units }: { hours: HourPoint[]; units: Units }) {
   const id = useId();
@@ -50,7 +50,7 @@ export function HourlyChart({ hours, units }: { hours: HourPoint[]; units: Units
 
   return (
     <div className="relative">
-      <p className="mb-3 text-xs text-ink/55 sm:hidden">Swipe sideways to see the whole day →</p>
+      <p className="mb-3 text-xs text-ink/55 sm:hidden">Swipe sideways for the whole day.</p>
       <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-10 bg-gradient-to-l from-paper to-transparent lg:hidden" aria-hidden />
       <div className="no-scrollbar -mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
       <div className="min-w-[760px] rounded-3xl border border-line bg-paper-2/60 p-3 focus-within:ring-2 focus-within:ring-solar sm:p-5">
@@ -129,10 +129,10 @@ export function HourlyChart({ hours, units }: { hours: HourPoint[]; units: Units
           {/* active marker */}
           <line x1={x(active)} x2={x(active)} y1={PAD.t - 30} y2={H - PAD.b + 22} stroke="var(--ink)" strokeOpacity="0.25" strokeDasharray="3 4" />
           <circle cx={x(active)} cy={y(hours[active].temp)} r={7} fill="var(--paper)" stroke="var(--ink)" strokeWidth={3} />
-          <g transform={`translate(${Math.min(W - 70, Math.max(70, x(active)))}, ${PAD.t - 24})`}>
-            <rect x={-60} y={-16} width={120} height={28} rx={14} fill="var(--ink)" />
+          <g transform={`translate(${Math.min(W - 88, Math.max(88, x(active)))}, ${PAD.t - 24})`}>
+            <rect x={-80} y={-16} width={160} height={28} rx={14} fill="var(--ink)" />
             <text textAnchor="middle" y={4} fill="var(--paper)" fontSize={14} fontFamily="var(--font-mono)" fontWeight={600}>
-              {hourLabel(hours[active].time)} · {toUnitTemp(hours[active].temp, units)}° · {hours[active].precipProb}%
+              {hourLabel(hours[active].time)} · {toUnitTemp(hours[active].temp, units)}° · {hours[active].precipProb}% rain
             </text>
           </g>
 

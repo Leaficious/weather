@@ -9,8 +9,7 @@ export default function SavedPage() {
     <div className="bg-paper pt-24 text-ink">
       <SkyTheme sky={null} />
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-20">
-        <p className="eyebrow text-ink/50">Saved places</p>
-        <h1 className="display mt-2 text-4xl sm:text-6xl">Your skies.</h1>
+        <h1 className="display text-4xl sm:text-6xl">Your skies.</h1>
         <SavedList />
       </div>
     </div>

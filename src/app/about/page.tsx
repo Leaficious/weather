@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { SkyTheme } from "@/components/SkyTheme";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { Reveal } from "@/components/Reveal";
 import { Aurora } from "@/components/motion/Aurora";
 import { SpotCard } from "@/components/motion/SpotCard";
@@ -26,10 +26,7 @@ export default function AboutPage() {
         <Aurora />
         <div className="isobars pointer-events-none absolute inset-0 opacity-[0.08] invert" aria-hidden />
         <div className="relative mx-auto max-w-4xl px-4 pb-20 pt-10 sm:px-6 sm:pb-28 sm:pt-16">
-          <p className="eyebrow rise text-paper/50" style={{ animationDelay: "0.1s" }}>
-            About
-          </p>
-          <h1 className="display text-sweep rise mt-2 text-4xl sm:text-6xl" style={{ animationDelay: "0.2s" }}>
+          <h1 className="display text-sweep rise text-4xl sm:text-6xl" style={{ animationDelay: "0.2s" }}>
             Weather, painted honestly.
           </h1>
           <p className="rise mt-6 max-w-2xl text-lg leading-relaxed text-paper/75" style={{ animationDelay: "0.35s" }}>
@@ -58,7 +55,7 @@ export default function AboutPage() {
             </Magnetic>
             <Magnetic>
               <a href="https://open-meteo.com/en/docs" target="_blank" rel="noreferrer" className="btn btn-ink h-12 px-6">
-                Open-Meteo docs ↗
+                Open-Meteo docs <ArrowUpRight className="h-4 w-4" aria-hidden />
               </a>
             </Magnetic>
           </Reveal>

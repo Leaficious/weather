@@ -16,6 +16,8 @@ async function loadFeatured(): Promise<Forecast[]> {
   return settled.flatMap((s) => (s.status === "fulfilled" ? [s.value] : []));
 }
 
+const COUNT_WORDS = ["No", "One", "Two", "Three", "Four", "Five", "Six"];
+
 const principles = [
   {
     icon: Palette,
@@ -50,15 +52,10 @@ export default async function HomePage() {
         <section id="world" className="relative scroll-mt-16" aria-labelledby="world-heading">
           <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 sm:py-28">
             <Reveal className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <p className="eyebrow text-ink/50">Around the world</p>
-                <h2 id="world-heading" className="display mt-2 text-4xl sm:text-6xl">
-                  Six skies, right now.
-                </h2>
-              </div>
-              <p className="max-w-sm text-sm text-ink/65">
-                Each tile is painted from that city&apos;s live conditions. Tap one to open the full forecast.
-              </p>
+              <h2 id="world-heading" className="display text-4xl sm:text-6xl">
+                {COUNT_WORDS[forecasts.length] ?? forecasts.length} {forecasts.length === 1 ? "sky" : "skies"}, right now.
+              </h2>
+              <p className="max-w-sm text-sm text-ink/65">Painted from each city&apos;s live conditions. Open one for the full forecast.</p>
             </Reveal>
 
             {forecasts.length ? (
@@ -81,8 +78,7 @@ export default async function HomePage() {
           <div className="isobars pointer-events-none absolute inset-0 opacity-[0.08] invert" aria-hidden />
           <div className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 sm:py-28">
             <Reveal>
-              <p className="eyebrow text-paper/50">How it reads</p>
-              <h2 id="how-heading" className="display text-sweep mt-2 max-w-3xl text-4xl sm:text-6xl">
+              <h2 id="how-heading" className="display text-sweep max-w-3xl text-4xl sm:text-6xl">
                 A forecast you can feel before you read it.
               </h2>
             </Reveal>
