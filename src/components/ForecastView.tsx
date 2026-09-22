@@ -1,10 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { ArrowLeft, Bookmark, BookmarkCheck, Check, Droplets, Eye, Gauge, Navigation, Share2, Sun, Wind } from "lucide-react";
 import { computeSky } from "@/lib/sky";
+import { usePointerParallax } from "@/lib/motion";
 import {
   compass,
   dayLabel,
@@ -24,13 +25,30 @@ import { WeatherIcon } from "./WeatherIcon";
 import { useFavorites, useToast, useUnits } from "./Providers";
 import { HourlyChart } from "./HourlyChart";
 import { SunArc } from "./SunArc";
+import { CountUp } from "./motion/CountUp";
+import { CursorGlow } from "./motion/CursorGlow";
+import { Horizon } from "./motion/Horizon";
+import { SpotCard } from "./motion/SpotCard";
+import { TiltCard } from "./motion/TiltCard";
 
 export function ForecastView({ forecast }: { forecast: Forecast }) {
   const { units } = useUnits();
   const { isSaved, toggleSave, hydrated } = useFavorites();
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
+  const [hovering, setHovering] = useState(false);
   const { current, place } = forecast;
+  const reduce = useReducedMotion();
+  const heroRef = useRef<HTMLElement>(null);
+  const { px, py } = usePointerParallax(heroRef);
+  const skyX = useTransform(px, (v) => v * -10);
+  const skyY = useTransform(py, (v) => v * -6);
+  const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
+  const copyY = useTransform(scrollYProgress, [0, 1], [0, reduce ? 0 : 120]);
+  const copyOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
+  const skyScale = useTransform(scrollYProgress, [0, 1], [1, reduce ? 1 : 1.08]);
+  const dim = useTransform(scrollYProgress, [0, 1], [0, 0.45]);
+  const fmtWhole = (n: number) => `${Math.round(toUnitTemp(n, units))}°`;
 
   const sky = useMemo(
     () =>
@@ -98,10 +116,24 @@ export function ForecastView({ forecast }: { forecast: Forecast }) {
       <SkyTheme sky={sky} />
 
       {/* HERO */}
-      <section className="sky-bg relative overflow-hidden pt-24" style={{ color: "var(--sky-text)" }}>
-        <SkyCanvas sky={sky} />
+      <section
+        ref={heroRef}
+        className="sky-bg sticky top-0 z-0 overflow-hidden pt-24"
+        style={{ color: "var(--sky-text)" }}
+        onMouseEnter={() => setHovering(true)}
+        onMouseLeave={() => setHovering(false)}
+      >
+        <motion.div className="absolute inset-[-3%]" style={{ x: skyX, y: skyY, scale: skyScale }} aria-hidden>
+          <SkyCanvas sky={sky} />
+        </motion.div>
+        <CursorGlow px={px} py={py} color={sky.colors.glow} active={hovering && !reduce} />
         <div className="isobars pointer-events-none absolute inset-0 opacity-[0.12] [mask-image:linear-gradient(to_top,black,transparent_70%)]" aria-hidden />
-        <div className="relative mx-auto flex max-w-7xl flex-col px-4 pb-10 sm:px-6 lg:min-h-[72svh]">
+        <Horizon sky={sky} px={px} py={py} scroll={scrollYProgress} className="h-[18svh]" />
+        <motion.div className="pointer-events-none absolute inset-0 bg-ink" style={{ opacity: dim }} aria-hidden />
+        <motion.div
+          className="relative mx-auto flex max-w-7xl flex-col px-4 pb-20 sm:px-6 lg:min-h-[78svh]"
+          style={{ y: copyY, opacity: copyOpacity }}
+        >
           <div className="rise flex flex-wrap items-center justify-between gap-3" style={rise(0)}>
             <Link href="/" className="btn btn-ghost h-10 px-4 text-sm">
               <ArrowLeft className="h-4 w-4" aria-hidden /> Search
@@ -132,10 +164,12 @@ export function ForecastView({ forecast }: { forecast: Forecast }) {
                 {place.name}
               </h1>
               <div className="rise mt-6 flex flex-wrap items-end gap-x-6 gap-y-3" style={rise(3)}>
-                <p className="display num text-[clamp(6rem,18vw,13rem)] leading-[0.82]">{fmtTemp(current.temp, units)}</p>
+                <p className="display num text-[clamp(6rem,18vw,13rem)] leading-[0.82]">
+                  <CountUp value={current.temp} format={fmtWhole} duration={1.6} delay={0.3} />
+                </p>
                 <div className="pb-1">
                   <p className="flex items-center gap-2 text-xl font-medium sm:text-2xl">
-                    <WeatherIcon code={current.code} isDay={current.isDay} className="h-7 w-7" strokeWidth={1.5} />
+                    <WeatherIcon code={current.code} isDay={current.isDay} className={`h-7 w-7 ${reduce ? "" : "float"}`} strokeWidth={1.5} />
                     {cond.label}
                   </p>
                   <p className="mt-1.5 text-base" style={{ color: "var(--sky-text-muted)" }}>
@@ -149,15 +183,19 @@ export function ForecastView({ forecast }: { forecast: Forecast }) {
               </p>
             </div>
 
-            <div className="rise surface w-full max-w-sm rounded-3xl p-5 lg:w-80" style={rise(5)}>
-              <SunArc sunrise={forecast.sunrise} sunset={forecast.sunset} progress={sky.sunProgress} now={current.time} />
+            <div className="rise w-full max-w-sm lg:w-80" style={rise(5)}>
+              <TiltCard className="surface rounded-3xl p-5" max={5} glare={false}>
+                <SunArc sunrise={forecast.sunrise} sunset={forecast.sunset} progress={sky.sunProgress} now={current.time} />
+              </TiltCard>
             </div>
           </div>
-        </div>
+        </motion.div>
       </section>
 
+      <div className="sheet bg-paper text-ink">
+
       {/* HOURLY */}
-      <section className="relative bg-paper text-ink" aria-labelledby="hourly-heading">
+      <section className="relative" aria-labelledby="hourly-heading">
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24">
           <Reveal className="flex items-end justify-between gap-4">
             <div>
@@ -175,7 +213,7 @@ export function ForecastView({ forecast }: { forecast: Forecast }) {
       </section>
 
       {/* DAILY + DETAILS */}
-      <section className="relative bg-paper-2 text-ink" aria-labelledby="daily-heading">
+      <section className="relative rounded-t-[2.5rem] bg-paper-2 sm:rounded-t-[3.5rem]" aria-labelledby="daily-heading">
         <div className="isobars pointer-events-none absolute inset-0 opacity-30" aria-hidden />
         <div className="relative mx-auto grid max-w-7xl gap-12 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-[1.1fr_1fr]">
           <div>
@@ -189,9 +227,9 @@ export function ForecastView({ forecast }: { forecast: Forecast }) {
               {forecast.daily.map((d, i) => {
                 const range = tempRange(forecast.daily);
                 return (
-                  <Reveal as="li" index={i} key={d.date} className="grid grid-cols-[3.5rem_1.75rem_1fr_auto] items-center gap-3 px-4 py-3.5 sm:grid-cols-[4.5rem_2rem_6rem_1fr_auto] sm:gap-4 sm:px-5">
+                  <Reveal as="li" index={i} key={d.date} className="group grid grid-cols-[3.5rem_1.75rem_1fr_auto] items-center gap-3 px-4 py-3.5 transition-colors first:rounded-t-3xl last:rounded-b-3xl hover:bg-solar/10 sm:grid-cols-[4.5rem_2rem_6rem_1fr_auto] sm:gap-4 sm:px-5">
                     <span className="font-semibold">{dayLabel(d.date, i)}</span>
-                    <WeatherIcon code={d.code} isDay className="h-5 w-5 text-ink/80" strokeWidth={1.6} />
+                    <WeatherIcon code={d.code} isDay className="h-5 w-5 text-ink/80 transition-transform duration-500 group-hover:-translate-y-0.5 group-hover:scale-110" strokeWidth={1.6} />
                     <span className="num hidden text-xs text-ink/55 sm:block">
                       {d.precipProb > 0 ? `${d.precipProb}% rain` : describeCode(d.code).label}
                     </span>
@@ -213,7 +251,7 @@ export function ForecastView({ forecast }: { forecast: Forecast }) {
             </Reveal>
             <ul className="mt-8 grid gap-3 sm:grid-cols-2">
               {details.map((d, i) => (
-                <Reveal as="li" index={i} key={d.label} className="group rounded-3xl border border-line bg-paper/70 p-5 backdrop-blur transition-colors hover:border-ink/40">
+                <SpotCard as="li" index={i} key={d.label} className="group rounded-3xl border border-line bg-paper/70 p-5 backdrop-blur transition-transform duration-500 hover:-translate-y-1">
                   <div className="flex items-center justify-between">
                     <p className="eyebrow text-ink/55">{d.label}</p>
                     <span className="flex items-center gap-2">
@@ -223,17 +261,21 @@ export function ForecastView({ forecast }: { forecast: Forecast }) {
                   </div>
                   <p className="display num mt-4 text-3xl">{d.value}</p>
                   <p className="mt-1 text-xs text-ink/60">{d.sub}</p>
-                </Reveal>
+                </SpotCard>
               ))}
-              <Reveal as="li" index={5} className="rounded-3xl bg-ink p-5 text-paper">
-                <p className="eyebrow text-paper/55">Precipitation</p>
-                <p className="display num mt-4 text-3xl">{current.precipitation.toFixed(1)} mm</p>
-                <p className="mt-1 text-xs text-paper/60">in the last hour · {forecast.hourly[0]?.precipProb ?? 0}% chance next hour</p>
-              </Reveal>
+              <SpotCard as="li" index={5} className="grain relative overflow-hidden rounded-3xl bg-ink p-5 text-paper">
+                <span className="aurora aurora-b !h-48 !w-48 !right-[-3rem] !top-[-3rem] !opacity-70" aria-hidden />
+                <p className="eyebrow relative text-paper/55">Precipitation</p>
+                <p className="display num relative mt-4 text-3xl">
+                  <CountUp value={current.precipitation} format={(n) => `${n.toFixed(1)} mm`} />
+                </p>
+                <p className="relative mt-1 text-xs text-paper/60">in the last hour · {forecast.hourly[0]?.precipProb ?? 0}% chance next hour</p>
+              </SpotCard>
             </ul>
           </div>
         </div>
       </section>
+      </div>
     </>
   );
 }
