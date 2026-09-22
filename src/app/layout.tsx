@@ -5,6 +5,7 @@ import { Providers } from "@/components/Providers";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Toaster } from "@/components/Toaster";
+import { ScrollProgress } from "@/components/motion/ScrollProgress";
 
 const display = Bricolage_Grotesque({
   variable: "--font-display",
@@ -39,6 +40,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           >
             Skip to content
           </a>
+          <ScrollProgress />
           <Header />
           <main id="main" className="flex-1 flex flex-col">
             {children}
