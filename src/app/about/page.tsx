@@ -3,6 +3,9 @@ import Link from "next/link";
 import { SkyTheme } from "@/components/SkyTheme";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { Reveal } from "@/components/Reveal";
+import { Aurora } from "@/components/motion/Aurora";
+import { SpotCard } from "@/components/motion/SpotCard";
+import { Magnetic } from "@/components/motion/Magnetic";
 
 export const metadata: Metadata = { title: "About & data", description: "Where Skyfield's numbers and colours come from." };
 
@@ -17,34 +20,46 @@ const rows = [
 
 export default function AboutPage() {
   return (
-    <div className="bg-paper pt-24 text-ink">
+    <div className="bg-paper text-ink">
       <SkyTheme sky={null} />
-      <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 sm:py-20">
-        <Reveal>
-          <h1 className="display text-4xl sm:text-6xl">Weather, painted honestly.</h1>
-          <p className="mt-6 max-w-2xl text-lg leading-relaxed text-ink/75">
+      <section className="grain sticky top-0 z-0 overflow-hidden bg-ink pt-24 text-paper">
+        <Aurora />
+        <div className="isobars pointer-events-none absolute inset-0 opacity-[0.08] invert" aria-hidden />
+        <div className="relative mx-auto max-w-4xl px-4 pb-20 pt-10 sm:px-6 sm:pb-28 sm:pt-16">
+          <h1 className="display text-sweep rise text-4xl sm:text-6xl" style={{ animationDelay: "0.2s" }}>
+            Weather, painted honestly.
+          </h1>
+          <p className="rise mt-6 max-w-2xl text-lg leading-relaxed text-paper/75" style={{ animationDelay: "0.35s" }}>
             Most weather apps show a photo of a sky that isn&apos;t yours. Skyfield draws the one above you, from the measurements themselves.
             The colour, the drifting clouds, the position of the sun on its arc — all of it is derived, none of it is decoration.
           </p>
-        </Reveal>
+        </div>
+      </section>
 
-        <dl className="mt-12 divide-y divide-line rounded-3xl border border-line bg-paper-2/60">
-          {rows.map(([k, v], i) => (
-            <Reveal as="div" index={i} key={k} className="grid gap-2 p-5 sm:grid-cols-[10rem_1fr] sm:gap-6">
-              <dt className="eyebrow pt-1 text-ink/55">{k}</dt>
-              <dd className="text-ink/80">{v}</dd>
-            </Reveal>
-          ))}
-        </dl>
+      <div className="sheet bg-paper">
+        <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 sm:py-20">
+          <dl className="grid gap-4 sm:grid-cols-2">
+            {rows.map(([k, v], i) => (
+              <SpotCard as="div" index={i} key={k} className="rounded-3xl border border-line bg-paper-2/60 p-5">
+                <dt className="eyebrow text-ink/55">{k}</dt>
+                <dd className="mt-3 text-ink/80">{v}</dd>
+              </SpotCard>
+            ))}
+          </dl>
 
-        <Reveal className="mt-12 flex flex-wrap gap-3">
-          <Link href="/" className="btn btn-solar h-12 px-6">
-            Look up a place <ArrowRight className="h-4 w-4" aria-hidden />
-          </Link>
-          <a href="https://open-meteo.com/en/docs" target="_blank" rel="noreferrer" className="btn btn-ink h-12 px-6">
-            Open-Meteo docs <ArrowUpRight className="h-4 w-4" aria-hidden />
-          </a>
-        </Reveal>
+          <Reveal className="mt-12 flex flex-wrap gap-3">
+            <Magnetic>
+              <Link href="/" className="btn btn-solar h-12 px-6">
+                Look up a place <ArrowRight className="h-4 w-4" aria-hidden />
+              </Link>
+            </Magnetic>
+            <Magnetic>
+              <a href="https://open-meteo.com/en/docs" target="_blank" rel="noreferrer" className="btn btn-ink h-12 px-6">
+                Open-Meteo docs <ArrowUpRight className="h-4 w-4" aria-hidden />
+              </a>
+            </Magnetic>
+          </Reveal>
+        </div>
       </div>
     </div>
   );

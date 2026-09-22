@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Sun } from "lucide-react";
+import { motion } from "framer-motion";
 import { UnitsToggle } from "./UnitsToggle";
 import { SearchBox } from "./SearchBox";
 
@@ -33,8 +34,8 @@ export function Header() {
       style={{ color: "var(--sky-text)" }}
     >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
-        <Link href="/" className="flex shrink-0 items-center gap-2 font-semibold tracking-tight" aria-label="Skyfield home">
-          <span className="grid h-8 w-8 place-items-center rounded-full bg-solar text-ink">
+        <Link href="/" className="group flex shrink-0 items-center gap-2 font-semibold tracking-tight" aria-label="Skyfield home">
+          <span className="grid h-8 w-8 place-items-center rounded-full bg-solar text-ink transition-transform duration-500 group-hover:rotate-90">
             <Sun className="h-4 w-4" aria-hidden />
           </span>
           <span className="display hidden text-xl min-[400px]:inline">Skyfield</span>
@@ -48,11 +49,27 @@ export function Header() {
                 key={l.href}
                 href={l.href}
                 aria-current={active ? "page" : undefined}
-                className={`relative rounded-full px-2.5 py-1.5 text-sm font-medium transition hover:bg-[var(--sky-surface)] sm:px-3 ${
-                  active ? "after:absolute after:inset-x-3 after:-bottom-0.5 after:h-0.5 after:rounded-full after:bg-solar" : "opacity-80 hover:opacity-100"
+                className={`relative rounded-full px-2.5 py-1.5 text-sm font-medium transition-opacity sm:px-3 ${
+                  active ? "" : "opacity-75 hover:opacity-100"
                 }`}
               >
-                {l.label}
+                {active && (
+                  <motion.span
+                    layoutId="nav-pill"
+                    className="absolute inset-0 rounded-full bg-[var(--sky-surface)] shadow-[inset_0_0_0_1px_var(--sky-surface-border)]"
+                    transition={{ type: "spring", stiffness: 420, damping: 34 }}
+                    aria-hidden
+                  />
+                )}
+                <span className="relative">{l.label}</span>
+                {active && (
+                  <motion.span
+                    layoutId="nav-dot"
+                    className="absolute -bottom-0.5 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-solar"
+                    transition={{ type: "spring", stiffness: 420, damping: 34 }}
+                    aria-hidden
+                  />
+                )}
               </Link>
             );
           })}

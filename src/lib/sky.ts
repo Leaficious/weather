@@ -32,7 +32,7 @@ interface Args {
   sunset: string;
 }
 
-function mix(a: string, b: string, t: number): string {
+export function mix(a: string, b: string, t: number): string {
   const pa = hex(a);
   const pb = hex(b);
   const r = pa.map((v, i) => Math.round(v + (pb[i] - v) * t));

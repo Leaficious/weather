@@ -59,7 +59,7 @@ body {
   color: var(--ink);
   font-family: var(--font-body), system-ui, sans-serif;
   font-feature-settings: "ss01", "cv11";
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 ::selection {
@@ -209,4 +209,210 @@ body {
 }
 .no-scrollbar {
   scrollbar-width: none;
+}
+
+/* ---------- Layering ---------- */
+
+/* A sheet slides up over the sticky sky hero, curtain-style. */
+.sheet {
+  position: relative;
+  z-index: 10;
+  border-radius: 2.5rem 2.5rem 0 0;
+  box-shadow: 0 -40px 80px -40px rgba(11, 18, 32, 0.55);
+}
+@media (min-width: 640px) {
+  .sheet {
+    border-radius: 3.5rem 3.5rem 0 0;
+  }
+}
+
+/* Film grain — keeps big flat gradients from banding and adds depth. */
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.35;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.5 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Spotlight border: a solar glow that tracks the pointer (see useSpotlight). */
+.spot {
+  position: relative;
+  isolation: isolate;
+}
+.spot::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.5s var(--ease-out-expo);
+  background: radial-gradient(28rem circle at var(--mx, 50%) var(--my, 50%), rgba(255, 180, 84, 0.22), transparent 55%);
+}
+.spot:hover::before,
+.spot:focus-within::before {
+  opacity: 1;
+}
+.spot-border::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  padding: 1px;
+  background: radial-gradient(22rem circle at var(--mx, 50%) var(--my, 50%), var(--solar), transparent 45%);
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.5s var(--ease-out-expo);
+}
+.spot-border:hover::after,
+.spot-border:focus-within::after {
+  opacity: 1;
+}
+
+/* Aurora: slow drifting colour fields for dark sections. */
+.aurora {
+  position: absolute;
+  border-radius: 999px;
+  filter: blur(80px);
+  opacity: 0.55;
+  will-change: transform;
+  animation: aurora-drift 26s ease-in-out infinite alternate;
+}
+.aurora-a {
+  width: 60vw;
+  height: 60vw;
+  left: -15vw;
+  top: -20vw;
+  background: radial-gradient(circle, #2a6fd6 0%, transparent 65%);
+}
+.aurora-b {
+  width: 50vw;
+  height: 50vw;
+  right: -10vw;
+  top: 10%;
+  background: radial-gradient(circle, #b0507a 0%, transparent 65%);
+  animation-delay: -9s;
+  animation-duration: 32s;
+}
+.aurora-c {
+  width: 45vw;
+  height: 45vw;
+  left: 30%;
+  bottom: -25vw;
+  background: radial-gradient(circle, var(--solar) 0%, transparent 65%);
+  animation-delay: -17s;
+  animation-duration: 38s;
+  opacity: 0.35;
+}
+@keyframes aurora-drift {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(8vw, -6vw, 0) scale(1.15);
+  }
+  100% {
+    transform: translate3d(-6vw, 8vw, 0) scale(0.95);
+  }
+}
+
+/* Marquee ticker. */
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.marquee {
+  animation: marquee 48s linear infinite;
+}
+.marquee-wrap:hover .marquee,
+.marquee-wrap:focus-within .marquee {
+  animation-play-state: paused;
+}
+
+/* Gentle float for icons. */
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+.float {
+  animation: float 4.5s ease-in-out infinite;
+}
+
+/* Shimmer sweep across a card on hover. */
+.shine {
+  position: relative;
+  overflow: hidden;
+}
+.shine::before {
+  content: "";
+  position: absolute;
+  inset: -50% auto -50% -60%;
+  width: 40%;
+  transform: skewX(-18deg) translateX(-20%);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+}
+.shine:hover::before {
+  opacity: 1;
+  animation: shine-sweep 0.9s var(--ease-out-expo) forwards;
+}
+@keyframes shine-sweep {
+  to {
+    transform: skewX(-18deg) translateX(520%);
+  }
+}
+
+/* Underline that draws in from the left. */
+.link-draw {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-repeat: no-repeat;
+  background-size: 0% 2px;
+  background-position: 0 100%;
+  transition: background-size 0.4s var(--ease-out-expo);
+}
+.link-draw:hover,
+.link-draw:focus-visible {
+  background-size: 100% 2px;
+}
+
+/* Text gradient sweep for big headings on dark sections. */
+.text-sweep {
+  background: linear-gradient(100deg, var(--paper) 0%, var(--paper) 45%, var(--solar) 50%, var(--paper) 55%, var(--paper) 100%);
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: sweep 7s ease-in-out infinite;
+}
+@keyframes sweep {
+  0%,
+  60% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: 0% 0;
+  }
 }
